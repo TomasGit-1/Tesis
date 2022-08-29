@@ -52,17 +52,40 @@ if __name__ == "__main__":
     opt = parser.parse_args()
     print(opt)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # try:
+    #     device = torch.load(opt.model_def, map_location=torch.device('cpu'))
+    # except Exception as error:
+    #     print("Error loading" + str(error))
+
     print("cuda" if torch.cuda.is_available() else "cpu")
-    model = Darknet(opt.model_def, img_size=opt.img_size).to(device)
+    try:
+        model = Darknet(opt.model_def, img_size=opt.img_size).to(device)
+    except Exception as error:
+        print("Error loading1 " + str(error))
+    # try:
+    #     my_model = Darknet.load_state_dict(torch.load(opt.model_def, map_location=torch.device('cpu')))
+    # except Exception as e:
+    #     print("error loading" +str(e))
 
+    print(model)
+    try:
+        if opt.weights_path.endswith(".weights"):
+            model.load_darknet_weights(opt.weights_path)
+        else:
+            try:
+                model.load_state_dict(torch.load(opt.weights_path))
+            except Exception as e:
+                print("Error loading2 " + str(e))
+                model.load_state_dict(torch.load(opt.weights_path , map_location=torch.device('cpu')))
+    except Exception as e:
+        print("Error loading3 " + str(e))
+        model.load_state_dict(torch.load(opt.weights_path , map_location=torch.device('cpu')))
 
-    if opt.weights_path.endswith(".weights"):
-        model.load_darknet_weights(opt.weights_path)
-    else:
-        model.load_state_dict(torch.load(opt.weights_path))
 
     model.eval()  
     classes = load_classes(opt.class_path)
+    # classes = ['Armas']
+    print(classes)
     Tensor = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
     if opt.webcam==1:
         cap = cv2.VideoCapture(0)
