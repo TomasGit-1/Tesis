@@ -20,8 +20,13 @@ def load_classes(path):
     Loads class labels at 'path'
     """
     fp = open(path, "r")
-    names = fp.read().split("\n")[:-1]
-    return names
+    # print(fp.read())
+    names = fp.read()
+    # names = fp.read().split("\n")[:-1]
+    # print(names)
+    class_name = []
+    class_name.append(names)
+    return class_name
 
 
 def weights_init_normal(m):
